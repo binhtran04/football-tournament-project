@@ -1,0 +1,15 @@
+services:
+  team-service:
+    build: ./team-service
+    networks:
+      - internal-net
+  tournament-service:
+    build: ./tournament-service
+    networks:
+      - internal-net
+    depends_on:
+      - team-service
+
+networks:
+  internal-net:
+    driver: bridge
