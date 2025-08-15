@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # Frontend service
@@ -37,7 +37,7 @@ services:
         uvicorn app.main:app --host 0.0.0.0 --port 8000
       "
 
-  # Tournament service  
+  # Tournament service
   tournament-service:
     build: ./backend/tournament-service
     ports:
@@ -64,6 +64,8 @@ services:
   # Team database
   team-db:
     image: postgres:15-alpine
+    ports:
+      - "5434:5432"
     environment:
       - POSTGRES_DB=team_db
       - POSTGRES_USER=team_user
@@ -81,6 +83,8 @@ services:
   # Tournament database
   tournament-db:
     image: postgres:15-alpine
+    ports:
+      - "5435:5432"
     environment:
       - POSTGRES_DB=tournament_db
       - POSTGRES_USER=tournament_user
