@@ -1,15 +1,104 @@
+version: '3.8'
+
 services:
-  team-service:
-    build: ./team-service
-    networks:
-      - internal-net
-  tournament-service:
-    build: ./tournament-service
-    networks:
-      - internal-net
+  # Frontend service
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_TEAM_SERVICE_URL=http://localhost:8001
+      - VITE_TOURNAMENT_SERVICE_URL=http://localhost:8002
     depends_on:
       - team-service
+      - tournament-service
+    networks:
+      - app-network
+
+  # Team service
+  team-service:
+    build: ./backend/team-service
+    ports:
+      - "8001:8000"
+    environment:
+      - DB_USER=team_user
+      - DB_PASSWORD=team_password
+      - DB_NAME=team_db
+      - TEAM_DB_HOST=team-db
+      - DB_PORT=5432
+    depends_on:
+      team-db:
+        condition: service_healthy
+    networks:
+      - app-network
+    command: >
+      sh -c "
+        alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000
+      "
+
+  # Tournament service  
+  tournament-service:
+    build: ./backend/tournament-service
+    ports:
+      - "8002:8000"
+    environment:
+      - DB_USER=tournament_user
+      - DB_PASSWORD=tournament_password
+      - DB_NAME=tournament_db
+      - TOURNAMENT_DB_HOST=tournament-db
+      - DB_PORT=5432
+    depends_on:
+      tournament-db:
+        condition: service_healthy
+      team-service:
+        condition: service_started
+    networks:
+      - app-network
+    command: >
+      sh -c "
+        alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000
+      "
+
+  # Team database
+  team-db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=team_db
+      - POSTGRES_USER=team_user
+      - POSTGRES_PASSWORD=team_password
+    volumes:
+      - team_db_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U team_user -d team_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Tournament database
+  tournament-db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=tournament_db
+      - POSTGRES_USER=tournament_user
+      - POSTGRES_PASSWORD=tournament_password
+    volumes:
+      - tournament_db_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tournament_user -d tournament_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  team_db_data:
+  tournament_db_data:
 
 networks:
-  internal-net:
+  app-network:
     driver: bridge
