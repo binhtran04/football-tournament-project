@@ -5,6 +5,7 @@ import sys
 
 from .api import router
 from .database import create_tables
+from .events import get_publisher
 
 # Configure logging
 logging.basicConfig(
@@ -34,6 +35,14 @@ async def startup_event():
     logger.info("Starting Team Service...")
     create_tables()
     logger.info("Database tables created/verified")
+    
+    # Initialize ZeroMQ publisher at startup
+    try:
+        publisher = get_publisher()
+        logger.info("ZeroMQ publisher initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize ZeroMQ publisher: {e}")
+        raise
 
 @app.get("/health")
 def health_check():
