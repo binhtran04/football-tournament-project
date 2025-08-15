@@ -89,31 +89,32 @@ def test_team_registered_event_handler():
         # Create event subscriber with mocked ZeroMQ
         subscriber = EventSubscriber()
         
-        # Mock the ZeroMQ socket
+        # Mock the ZeroMQ socket and patch SessionLocal to use our test session
         with patch.object(subscriber, 'socket'):
             with patch.object(subscriber, '_listen'):
-                # Test event message
-                event_message = json.dumps({
-                    "event": "TeamRegistered",
-                    "payload": {
-                        "teamId": "test-team-123",
-                        "name": "Test FC"
-                    },
-                    "timestamp": "2024-01-01T10:00:00Z"
-                })
-                
-                # Handle the message
-                subscriber._handle_message(event_message)
-                
-                # Verify tournament team was created
-                db = TestingSessionLocal()
-                tournament_team = db.query(TournamentTeam).filter_by(team_id="test-team-123").first()
-                
-                assert tournament_team is not None
-                assert tournament_team.team_name == "Test FC"
-                assert tournament_team.tournament_id == 1
-                
-                db.close()
+                with patch('app.events.SessionLocal', TestingSessionLocal):
+                    # Test event message
+                    event_message = json.dumps({
+                        "event": "TeamRegistered",
+                        "payload": {
+                            "teamId": "test-team-123",
+                            "name": "Test FC"
+                        },
+                        "timestamp": "2024-01-01T10:00:00Z"
+                    })
+                    
+                    # Handle the message
+                    subscriber._handle_message(event_message)
+                    
+                    # Verify tournament team was created
+                    db = TestingSessionLocal()
+                    tournament_team = db.query(TournamentTeam).filter_by(team_id="test-team-123").first()
+                    
+                    assert tournament_team is not None
+                    assert tournament_team.team_name == "Test FC"
+                    assert tournament_team.tournament_id == 1
+                    
+                    db.close()
                 
     finally:
         Base.metadata.drop_all(bind=engine)
