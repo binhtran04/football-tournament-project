@@ -5,10 +5,10 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "5173:80"
+      - "${FRONTEND_PORT}:80"
     environment:
-      - VITE_TEAM_SERVICE_URL=http://localhost:8001
-      - VITE_TOURNAMENT_SERVICE_URL=http://localhost:8002
+      - VITE_TEAM_SERVICE_URL=${VITE_TEAM_SERVICE_URL}
+      - VITE_TOURNAMENT_SERVICE_URL=${VITE_TOURNAMENT_SERVICE_URL}
     depends_on:
       - team-service
       - tournament-service
@@ -19,12 +19,12 @@ services:
   team-service:
     build: ./backend/team-service
     ports:
-      - "8001:8000"
+      - "${TEAM_SERVICE_PORT}:8000"
     environment:
-      - DB_USER=team_user
-      - DB_PASSWORD=team_password
-      - DB_NAME=team_db
-      - TEAM_DB_HOST=team-db
+      - DB_USER=${TEAM_DB_USER}
+      - DB_PASSWORD=${TEAM_DB_PASSWORD}
+      - DB_NAME=${TEAM_DB_NAME}
+      - TEAM_DB_HOST=${TEAM_DB_HOST}
       - DB_PORT=5432
     depends_on:
       team-db:
@@ -41,12 +41,12 @@ services:
   tournament-service:
     build: ./backend/tournament-service
     ports:
-      - "8002:8000"
+      - "${TOURNAMENT_SERVICE_PORT}:8000"
     environment:
-      - DB_USER=tournament_user
-      - DB_PASSWORD=tournament_password
-      - DB_NAME=tournament_db
-      - TOURNAMENT_DB_HOST=tournament-db
+      - DB_USER=${TOURNAMENT_DB_USER}
+      - DB_PASSWORD=${TOURNAMENT_DB_PASSWORD}
+      - DB_NAME=${TOURNAMENT_DB_NAME}
+      - TOURNAMENT_DB_HOST=${TOURNAMENT_DB_HOST}
       - DB_PORT=5432
     depends_on:
       tournament-db:
@@ -65,17 +65,17 @@ services:
   team-db:
     image: postgres:15-alpine
     ports:
-      - "5434:5432"
+      - "${TEAM_DB_EXTERNAL_PORT}:5432"
     environment:
-      - POSTGRES_DB=team_db
-      - POSTGRES_USER=team_user
-      - POSTGRES_PASSWORD=team_password
+      - POSTGRES_DB=${TEAM_DB_NAME}
+      - POSTGRES_USER=${TEAM_DB_USER}
+      - POSTGRES_PASSWORD=${TEAM_DB_PASSWORD}
     volumes:
       - team_db_data:/var/lib/postgresql/data
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U team_user -d team_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${TEAM_DB_USER} -d ${TEAM_DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -84,17 +84,17 @@ services:
   tournament-db:
     image: postgres:15-alpine
     ports:
-      - "5435:5432"
+      - "${TOURNAMENT_DB_EXTERNAL_PORT}:5432"
     environment:
-      - POSTGRES_DB=tournament_db
-      - POSTGRES_USER=tournament_user
-      - POSTGRES_PASSWORD=tournament_password
+      - POSTGRES_DB=${TOURNAMENT_DB_NAME}
+      - POSTGRES_USER=${TOURNAMENT_DB_USER}
+      - POSTGRES_PASSWORD=${TOURNAMENT_DB_PASSWORD}
     volumes:
       - tournament_db_data:/var/lib/postgresql/data
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U tournament_user -d tournament_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${TOURNAMENT_DB_USER} -d ${TOURNAMENT_DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
