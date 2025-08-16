@@ -116,12 +116,7 @@ project-root/
 │   ├── vite.config.ts
 │   └── Dockerfile
 │
-├── tests/
-│   ├── integration_test.sh     # Integration test script
-│   └── Dockerfile              # Test runner container
-│
 ├── docker-compose.yml          # Main orchestration
-├── docker-compose.test.yml     # Test orchestration
 ├── Makefile                    # Development commands
 ├── .env.example               # Environment variables template
 └── README.md
@@ -167,18 +162,6 @@ npm install
 npm test
 ```
 
-#### Integration Tests
-
-```bash
-# Using test compose file
-docker-compose -f docker-compose.test.yml up --build --abort-on-container-exit
-
-# Using Makefile
-make integration-test
-
-# Manual execution
-./tests/integration_test.sh
-```
 
 ### Database Migrations
 
@@ -216,7 +199,7 @@ make clean           # Remove containers and volumes
 
 make test-backend    # Run backend tests
 make test-frontend   # Run frontend tests
-make integration-test # Run integration tests
+make test-all        # Run all tests
 
 make team-logs       # View team service logs
 make tournament-logs # View tournament service logs

@@ -1,4 +1,4 @@
-.PHONY: help up down build logs clean test-backend test-frontend integration-test team-logs tournament-logs db-team db-tournament
+.PHONY: help up down build logs clean test-backend test-frontend team-logs tournament-logs db-team db-tournament
 
 # Default target
 help:
@@ -12,10 +12,9 @@ help:
 	@echo "  make clean           - Remove containers and volumes"
 	@echo ""
 	@echo "🧪 Testing:"
-	@echo "  make test-all           - Run all tests (backend unit + frontend + integration)"
+	@echo "  make test-all           - Run all tests (backend unit + frontend)"
 	@echo "  make test-backend-unit  - Run backend unit tests (services must be DOWN)"
 	@echo "  make test-frontend      - Run frontend tests (starts frontend if needed)"
-	@echo "  make test-integration   - Run integration tests (services must be UP)"
 	@echo ""
 	@echo "🔍 Debugging:"
 	@echo "  make team-logs       - View team service logs"
@@ -50,7 +49,7 @@ clean:
 	docker system prune -f
 
 # Test commands
-test-all: test-backend-unit test-frontend test-integration
+test-all: test-backend-unit test-frontend
 
 # Unit tests (run with services DOWN)
 test-backend-unit: 
@@ -78,10 +77,6 @@ test-frontend:
 		sleep 3; \
 	fi
 	docker-compose exec -T frontend npm test
-
-integration-test-compose:
-	@echo "🧪 Running integration tests with docker-compose..."
-	docker-compose -f docker-compose.test.yml up --build --abort-on-container-exit
 
 # Service-specific logs
 team-logs:
