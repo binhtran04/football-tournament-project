@@ -162,7 +162,6 @@ npm install
 npm test
 ```
 
-
 ### Database Migrations
 
 **Team Service:**
@@ -346,44 +345,6 @@ docker-compose exec tournament-db psql -U tournament_user -d tournament_db
 curl http://localhost:8001/health
 curl http://localhost:8002/health
 ```
-
-## Production Considerations
-
-This is a development/prototype setup. For production deployment, consider:
-
-1. **Security:**
-
-   - Use secrets management for database passwords
-   - Configure proper CORS origins
-   - Add authentication/authorization
-   - Use HTTPS with SSL certificates
-
-2. **Scalability:**
-
-   - Load balancing for services
-   - Database connection pooling
-   - Message queue persistence
-   - Container orchestration (Kubernetes)
-
-3. **Monitoring:**
-
-   - Health check endpoints
-   - Metrics collection (Prometheus)
-   - Centralized logging (ELK stack)
-   - Distributed tracing
-
-4. **Data:**
-   - Database backups
-   - Data migration strategies
-   - Read replicas for scaling
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make changes with tests
-4. Run test suite
-5. Submit pull request
 
 ## License
 
